@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Website extends Model
 {
@@ -12,6 +13,11 @@ class Website extends Model
     protected $fillable = [
         'name',
         'url',
+        'user_id',
     ];
-    //
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Contracts\SubscribeServiceInterface;
+use App\Contracts\Contract\SubscribeServiceInterface;
 use App\Models\Subscription;
 
 class SubscribeService implements SubscribeServiceInterface

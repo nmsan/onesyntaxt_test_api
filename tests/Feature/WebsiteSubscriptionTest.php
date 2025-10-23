@@ -13,7 +13,10 @@ class WebsiteSubscriptionTest extends TestCase
 
     public function test_users_can_subscribe_to_website()
     {
-        $website = Website::factory()->create();
+
+        $adminUser = User::factory()->create();
+        $website = Website::factory()->create(['user_id' => $adminUser->id]);
+
         $user = User::factory()->create();
         $response = $this->postJson('/api/subscribe', [
             'website_id' => $website->id,
@@ -34,7 +37,8 @@ class WebsiteSubscriptionTest extends TestCase
     public function test_user_cannot_subscribe_to_website_twice()
     {
 
-        $website = Website::factory()->create();
+        $adminUser = User::factory()->create();
+        $website = Website::factory()->create(['user_id' => $adminUser->id]);
         $user = User::factory()->create();
 
         $this->postJson('/api/subscribe', ['website_id' => $website->id, 'user_id' => $user->id]);

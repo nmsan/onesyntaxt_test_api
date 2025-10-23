@@ -15,6 +15,7 @@ class WebsiteFactory extends Factory
         return [
             'name' => fake()->name(),
             'url' => fake()->unique()->slug(),
+            'user_id' => fake()->numberBetween(1, 10),
         ];
     }
 
