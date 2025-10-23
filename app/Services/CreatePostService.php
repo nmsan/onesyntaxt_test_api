@@ -15,7 +15,7 @@ class CreatePostService implements CreatePostInterface
                 [
                     'title' => $data['title'],
                     'body' => $data['body'],
-                    'status' => $data['status'],
+                    'status' => $data['status'] ?? 'draft',
                     'website_id' => $website_id]
             );
             return $post;
