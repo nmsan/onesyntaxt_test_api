@@ -18,7 +18,8 @@ class SubscribeService implements SubscribeServiceInterface
             if ($res) {
                 return [
                     'status' => true,
-                    'message' => 'Subscription created successfully'
+                    'message' => 'Subscription created successfully',
+                    'data' => $res
                     ];
             } else {
                 return ['status' => false, 'message' => 'Subscription not created'];

@@ -6,6 +6,7 @@ use App\Contracts\CreatePostInterface;
 use App\Contracts\UpdatePostInterface;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use App\Models\Website;
 
@@ -32,7 +33,7 @@ class PostController extends Controller
 
         $post = $this->createPost->createPost($website_id, $request->validated());
         if ($post) {
-            return response()->json(['message' => 'Post created successfully', 'data' => $post], 200);
+            return response()->json(['message' => 'Post created successfully', 'data' => new PostResource($post)], 200);
         } else {
             return response()->json(['message' => 'Post not created'], 400);
         }
@@ -47,7 +48,7 @@ class PostController extends Controller
 
         $updatedPost = $this->updatePost->updatePost($post_id, $request->validated());
         if ($updatedPost) {
-            return response()->json(['message' => 'Post updated successfully', 'data' => $updatedPost], 200);
+            return response()->json(['message' => 'Post updated successfully', 'data' => new PostResource($updatedPost)], 200);
         } else {
             return response()->json(['message' => 'Post not updated'], 400);
         }
