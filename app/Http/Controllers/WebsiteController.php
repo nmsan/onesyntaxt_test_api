@@ -2,34 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Website;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Contracts\WebsiteServiceInterface;
+use App\Http\Requests\CreateWebsiteRequest;
 
 class WebsiteController extends Controller
 {
-    public function store(Request $request)
+    private WebsiteServiceInterface $websiteService;
+
+    public function __construct(WebsiteServiceInterface $websiteService)
     {
-        // Validate request data
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'url' => 'required|url|max:255',
-            'user_id' => 'required|integer|exists:users,id'
-        ]);
+        $this->websiteService = $websiteService;
+    }
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
+    public function store(CreateWebsiteRequest $request)
+    {
         try {
-            $website = Website::create([
-                'name' => $request->name,
-                'url' => $request->url,
-                'user_id' => $request->user_id
-            ]);
+            $website = $this->websiteService->createWebsite($request->validated());
 
             return response()->json([
                 'message' => 'Website created successfully',

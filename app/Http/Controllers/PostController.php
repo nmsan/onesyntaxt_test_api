@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Contracts\CreatePostInterface;
 use App\Contracts\UpdatePostInterface;
+use App\Http\Requests\CreatePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Models\Website;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -23,28 +23,14 @@ class PostController extends Controller
         $this->updatePost = $updatePost;
     }
 
-    public function store(int $website_id, Request $request)
+    public function store(int $website_id, CreatePostRequest $request)
     {
         $website = Website::find($website_id);
         if (!$website) {
             return response()->json(['message' => 'Website not found'], 404);
         }
 
-        // Validate request data
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'status' => 'sometimes|string|in:draft,published'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $post = $this->createPost->createPost($website_id, $request->all());
+        $post = $this->createPost->createPost($website_id, $request->validated());
         if ($post) {
             return response()->json(['message' => 'Post created successfully', 'data' => $post], 200);
         } else {
@@ -52,26 +38,14 @@ class PostController extends Controller
         }
     }
 
-    public function update(int $post_id, Request $request)
+    public function update(int $post_id, UpdatePostRequest $request)
     {
         $post = Post::find($post_id);
         if (!$post) {
             return response()->json(['message' => 'Post not found'], 404);
         }
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'status' => 'sometimes|string|in:draft,published'
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $updatedPost = $this->updatePost->updatePost($post_id, $request->all());
+        $updatedPost = $this->updatePost->updatePost($post_id, $request->validated());
         if ($updatedPost) {
             return response()->json(['message' => 'Post updated successfully', 'data' => $updatedPost], 200);
         } else {
