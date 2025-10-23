@@ -1,0 +1,13 @@
+[Unit]
+Description=Laravel Queue Worker
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /Users/asanka/Projects/onesyntax/solid-test/api/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+WorkingDirectory=/Users/asanka/Projects/onesyntax/solid-test/api
+
+[Install]
+WantedBy=multi-user.target

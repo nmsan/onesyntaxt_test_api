@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Contracts\Contract\CreatePostInterface;
+use App\Contracts\CreatePostInterface;
+use App\Events\PostPublished;
 use App\Models\Post;
-use App\Models\Website;
 
 class CreatePostService implements CreatePostInterface
 {
@@ -18,6 +18,11 @@ class CreatePostService implements CreatePostInterface
                     'status' => $data['status'] ?? 'draft',
                     'website_id' => $website_id]
             );
+
+            if ($post->status === 'published') {
+                event(new PostPublished($post, $website_id));
+            }
+
             return $post;
         } catch (\Exception $e) {
             throw $e;

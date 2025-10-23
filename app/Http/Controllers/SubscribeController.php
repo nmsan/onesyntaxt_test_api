@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\Contract\SubscribeServiceInterface;
+use App\Contracts\SubscribeServiceInterface;
 use Illuminate\Http\Request;
 
 class SubscribeController extends Controller

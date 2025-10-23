@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Contracts\Contract;
+namespace App\Contracts;
 
 interface CreatePostInterface
 {

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\Contract\CreatePostInterface;
-use App\Contracts\Contract\UpdatePostInterface;
-use App\Models\Website;
+use App\Contracts\CreatePostInterface;
+use App\Contracts\UpdatePostInterface;
 use App\Models\Post;
+use App\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
