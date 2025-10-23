@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\CreatePostInterface;
+use App\Contracts\PostRetrievalInterface;
 use App\Contracts\UpdatePostInterface;
 use App\Http\Requests\CreatePostRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -14,14 +15,40 @@ class PostController extends Controller
 {
     private CreatePostInterface $createPost;
     private UpdatePostInterface $updatePost;
+    private PostRetrievalInterface $postRetrieval;
 
     public function __construct(
         CreatePostInterface $createPost,
-        UpdatePostInterface $updatePost
+        UpdatePostInterface $updatePost,
+        PostRetrievalInterface $postRetrieval
     )
     {
         $this->createPost = $createPost;
         $this->updatePost = $updatePost;
+        $this->postRetrieval = $postRetrieval;
+    }
+
+    public function index(string $website_id)
+    {
+        try {
+            $website = Website::find($website_id);
+            if (!$website) {
+                return response()->json(['message' => 'Website not found'], 404);
+            }
+
+            $posts = $this->postRetrieval->getPostsByWebsite($website_id);
+
+            return response()->json([
+                'message' => 'Posts retrieved successfully',
+                'data' => PostResource::collection($posts)
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to retrieve posts',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(int $website_id, CreatePostRequest $request)

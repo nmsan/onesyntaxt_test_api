@@ -1,0 +1,811 @@
+openapi: 3.0.3
+info:
+  title: SOLID Test API
+  description: |
+    A Laravel API demonstrating SOLID principles with website and post management functionality.
+
+    ## Features
+    - Website management (CRUD operations)
+    - Post management with website association
+    - User subscription system
+    - Email notifications
+    - SOLID architecture implementation
+
+    ## Architecture
+    This API follows SOLID principles:
+    - **Single Responsibility Principle**: Each service handles one specific responsibility
+    - **Open/Closed Principle**: Services can be extended without modification
+    - **Liskov Substitution Principle**: Interface implementations are substitutable
+    - **Interface Segregation Principle**: Focused, cohesive interfaces
+    - **Dependency Inversion Principle**: Dependencies on abstractions, not concretions
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000/api
+    description: Development server
+  - url: https://api.example.com/api
+    description: Production server
+
+tags:
+  - name: Websites
+    description: Website management operations
+  - name: Posts
+    description: Post management operations
+  - name: Subscriptions
+    description: User subscription management
+  - name: Health
+    description: API health and status
+
+paths:
+  /websites:
+    get:
+      tags:
+        - Websites
+      summary: Get all websites
+      description: |
+        Retrieves all websites with their associated user information.
+
+        **SOLID Implementation:**
+        - Uses `WebsiteRetrievalInterface` for dependency inversion
+        - Service layer handles business logic (Single Responsibility)
+        - Interface allows for easy extension (Open/Closed)
+      operationId: getAllWebsites
+      responses:
+        '200':
+          description: Websites retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Websites retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WebsiteWithUser'
+              examples:
+                success:
+                  summary: Successful response with websites
+                  value:
+                    message: "Websites retrieved successfully"
+                    data:
+                      - id: 1
+                        name: "Tech Blog"
+                        url: "https://techblog.example.com"
+                        user_id: 1
+                        created_at: "2024-01-15T10:30:00.000000Z"
+                        updated_at: "2024-01-15T10:30:00.000000Z"
+                        user:
+                          id: 1
+                          name: "John Doe"
+                          email: "john@example.com"
+                          email_verified_at: "2024-01-15T10:25:00.000000Z"
+                          created_at: "2024-01-15T10:25:00.000000Z"
+                          updated_at: "2024-01-15T10:25:00.000000Z"
+                      - id: 2
+                        name: "Food Reviews"
+                        url: "https://foodreviews.example.com"
+                        user_id: 2
+                        created_at: "2024-01-16T14:45:00.000000Z"
+                        updated_at: "2024-01-16T14:45:00.000000Z"
+                        user:
+                          id: 2
+                          name: "Jane Smith"
+                          email: "jane@example.com"
+                          email_verified_at: "2024-01-16T14:40:00.000000Z"
+                          created_at: "2024-01-16T14:40:00.000000Z"
+                          updated_at: "2024-01-16T14:40:00.000000Z"
+                empty:
+                  summary: Empty response
+                  value:
+                    message: "Websites retrieved successfully"
+                    data: [ ]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Failed to retrieve websites"
+                error: "Database connection failed"
+
+  /website:
+    post:
+      tags:
+        - Websites
+      summary: Create a new website
+      description: |
+        Creates a new website for a user.
+
+        **SOLID Implementation:**
+        - Uses `WebsiteCreationInterface` for dependency inversion
+        - Service layer handles creation logic (Single Responsibility)
+        - Interface segregation for focused functionality
+      operationId: createWebsite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebsiteRequest'
+            examples:
+              valid:
+                summary: Valid website creation
+                value:
+                  name: "My Tech Blog"
+                  url: "https://mytechblog.com"
+                  user_id: 1
+      responses:
+        '201':
+          description: Website created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Website created successfully"
+                  data:
+                    $ref: '#/components/schemas/Website'
+              example:
+                message: "Website created successfully"
+                data:
+                  id: 3
+                  name: "My Tech Blog"
+                  url: "https://mytechblog.com"
+                  user_id: 1
+                  created_at: "2024-01-17T09:15:00.000000Z"
+                  updated_at: "2024-01-17T09:15:00.000000Z"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /website/{website_id}/posts:
+    get:
+      tags:
+        - Posts
+      summary: Get posts by website
+      description: |
+        Retrieves all posts belonging to a specific website, ordered by creation date (newest first).
+
+        **SOLID Implementation:**
+        - Uses `PostRetrievalInterface` for dependency inversion
+        - Service layer handles retrieval logic (Single Responsibility)
+        - Interface allows for easy extension (Open/Closed)
+        - Eager loading of website and user relationships
+      operationId: getPostsByWebsite
+      parameters:
+        - name: website_id
+          in: path
+          required: true
+          description: The ID of the website
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Posts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Posts retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PostWithWebsite'
+              examples:
+                success:
+                  summary: Successful response with posts
+                  value:
+                    message: "Posts retrieved successfully"
+                    data:
+                      - id: 1
+                        title: "Getting Started with Laravel"
+                        body: "Laravel is a powerful PHP framework that makes web development enjoyable and creative..."
+                        status: "published"
+                        website_id: 1
+                        created_at: "2024-01-15T10:30:00.000000Z"
+                        updated_at: "2024-01-15T10:30:00.000000Z"
+                        website:
+                          id: 1
+                          name: "Tech Blog"
+                          url: "https://techblog.example.com"
+                          user_id: 1
+                          created_at: "2024-01-15T10:25:00.000000Z"
+                          updated_at: "2024-01-15T10:25:00.000000Z"
+                          user:
+                            id: 1
+                            name: "John Doe"
+                            email: "john@example.com"
+                            email_verified_at: "2024-01-15T10:20:00.000000Z"
+                            created_at: "2024-01-15T10:20:00.000000Z"
+                            updated_at: "2024-01-15T10:20:00.000000Z"
+                      - id: 2
+                        title: "Advanced Eloquent Relationships"
+                        body: "Eloquent relationships are one of the most powerful features of Laravel..."
+                        status: "draft"
+                        website_id: 1
+                        created_at: "2024-01-16T14:45:00.000000Z"
+                        updated_at: "2024-01-16T14:45:00.000000Z"
+                        website:
+                          id: 1
+                          name: "Tech Blog"
+                          url: "https://techblog.example.com"
+                          user_id: 1
+                          created_at: "2024-01-15T10:25:00.000000Z"
+                          updated_at: "2024-01-15T10:25:00.000000Z"
+                          user:
+                            id: 1
+                            name: "John Doe"
+                            email: "john@example.com"
+                            email_verified_at: "2024-01-15T10:20:00.000000Z"
+                            created_at: "2024-01-15T10:20:00.000000Z"
+                            updated_at: "2024-01-15T10:20:00.000000Z"
+                empty:
+                  summary: Empty response when no posts exist
+                  value:
+                    message: "Posts retrieved successfully"
+                    data: [ ]
+        '404':
+          description: Website not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Website not found"
+              example:
+                message: "Website not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Failed to retrieve posts"
+                error: "Database connection failed"
+
+  /post/{website_id}:
+    post:
+      tags:
+        - Posts
+      summary: Create a new post
+      description: |
+        Creates a new post for a specific website.
+
+        **SOLID Implementation:**
+        - Uses `CreatePostInterface` for dependency inversion
+        - Service layer handles creation logic (Single Responsibility)
+        - Interface segregation for focused functionality
+      operationId: createPost
+      parameters:
+        - name: website_id
+          in: path
+          required: true
+          description: The ID of the website
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostRequest'
+            examples:
+              published:
+                summary: Create published post
+                value:
+                  title: "My First Post"
+                  body: "This is the content of my first post."
+                  status: "published"
+              draft:
+                summary: Create draft post
+                value:
+                  title: "Work in Progress"
+                  body: "This post is still being written."
+                  status: "draft"
+      responses:
+        '200':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Post created successfully"
+                  data:
+                    $ref: '#/components/schemas/Post'
+        '400':
+          description: Post creation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Post not created"
+        '404':
+          description: Website not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Website not found"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /post/{post_id}:
+    put:
+      tags:
+        - Posts
+      summary: Update a post
+      description: |
+        Updates an existing post.
+
+        **SOLID Implementation:**
+        - Uses `UpdatePostInterface` for dependency inversion
+        - Service layer handles update logic (Single Responsibility)
+        - Interface segregation for focused functionality
+      operationId: updatePost
+      parameters:
+        - name: post_id
+          in: path
+          required: true
+          description: The ID of the post to update
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePostRequest'
+            examples:
+              update:
+                summary: Update post
+                value:
+                  title: "Updated Post Title"
+                  body: "This is the updated content of the post."
+                  status: "published"
+      responses:
+        '200':
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Post updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Post'
+        '400':
+          description: Post update failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Post not updated"
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Post not found"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /subscribe:
+    post:
+      tags:
+        - Subscriptions
+      summary: Subscribe to website notifications
+      description: |
+        Creates a subscription for email notifications from a website.
+
+        **SOLID Implementation:**
+        - Uses `SubscribeServiceInterface` for dependency inversion
+        - Service layer handles subscription logic (Single Responsibility)
+        - Interface segregation for focused functionality
+      operationId: createSubscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequest'
+            examples:
+              subscription:
+                summary: Create subscription
+                value:
+                  email: "subscriber@example.com"
+                  website_id: 1
+      responses:
+        '200':
+          description: Subscription created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Subscription created successfully"
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+components:
+  schemas:
+    Website:
+      type: object
+      required:
+        - id
+        - name
+        - url
+        - user_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the website
+          example: 1
+        name:
+          type: string
+          description: Name of the website
+          example: "Tech Blog"
+        url:
+          type: string
+          format: uri
+          description: URL of the website
+          example: "https://techblog.example.com"
+        user_id:
+          type: integer
+          format: int64
+          description: ID of the user who owns the website
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the website was created
+          example: "2024-01-15T10:30:00.000000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the website was last updated
+          example: "2024-01-15T10:30:00.000000Z"
+
+    WebsiteWithUser:
+      allOf:
+        - $ref: '#/components/schemas/Website'
+        - type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the user
+          example: 1
+        name:
+          type: string
+          description: Full name of the user
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+          example: "john@example.com"
+        email_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the email was verified
+          example: "2024-01-15T10:25:00.000000Z"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the user was created
+          example: "2024-01-15T10:25:00.000000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the user was last updated
+          example: "2024-01-15T10:25:00.000000Z"
+
+    Post:
+      type: object
+      required:
+        - id
+        - title
+        - body
+        - status
+        - website_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the post
+          example: 1
+        title:
+          type: string
+          description: Title of the post
+          example: "Getting Started with Laravel"
+        body:
+          type: string
+          description: Content/body of the post
+          example: "Laravel is a powerful PHP framework..."
+        status:
+          type: string
+          enum: [ draft, published ]
+          description: Publication status of the post
+          example: "published"
+        website_id:
+          type: integer
+          format: int64
+          description: ID of the website this post belongs to
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the post was created
+          example: "2024-01-15T10:30:00.000000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the post was last updated
+          example: "2024-01-15T10:30:00.000000Z"
+
+    PostWithWebsite:
+      allOf:
+        - $ref: '#/components/schemas/Post'
+        - type: object
+          properties:
+            website:
+              $ref: '#/components/schemas/WebsiteWithUser'
+
+    Subscription:
+      type: object
+      required:
+        - id
+        - email
+        - website_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the subscription
+          example: 1
+        email:
+          type: string
+          format: email
+          description: Email address of the subscriber
+          example: "subscriber@example.com"
+        website_id:
+          type: integer
+          format: int64
+          description: ID of the website being subscribed to
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the subscription was created
+          example: "2024-01-15T10:30:00.000000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the subscription was last updated
+          example: "2024-01-15T10:30:00.000000Z"
+
+    CreateWebsiteRequest:
+      type: object
+      required:
+        - name
+        - url
+        - user_id
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Name of the website
+          example: "My Tech Blog"
+        url:
+          type: string
+          format: uri
+          description: URL of the website
+          example: "https://mytechblog.com"
+        user_id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: ID of the user creating the website
+          example: 1
+
+    CreatePostRequest:
+      type: object
+      required:
+        - title
+        - body
+        - status
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Title of the post
+          example: "My First Post"
+        body:
+          type: string
+          minLength: 1
+          description: Content/body of the post
+          example: "This is the content of my first post."
+        status:
+          type: string
+          enum: [ draft, published ]
+          description: Publication status of the post
+          example: "published"
+
+    UpdatePostRequest:
+      type: object
+      required:
+        - title
+        - body
+        - status
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Title of the post
+          example: "Updated Post Title"
+        body:
+          type: string
+          minLength: 1
+          description: Content/body of the post
+          example: "This is the updated content of the post."
+        status:
+          type: string
+          enum: [ draft, published ]
+          description: Publication status of the post
+          example: "published"
+
+    CreateSubscriptionRequest:
+      type: object
+      required:
+        - email
+        - website_id
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address of the subscriber
+          example: "subscriber@example.com"
+        website_id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: ID of the website to subscribe to
+          example: 1
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: "An error occurred"
+        error:
+          type: string
+          description: Detailed error information
+          example: "Database connection failed"
+
+    ValidationError:
+      type: object
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          description: Validation error message
+          example: "The given data was invalid."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Field-specific validation errors
+          example:
+            title: [ "The title field is required." ]
+            email: [ "The email field must be a valid email address." ]
+
+securitySchemes:
+  BearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+    description: JWT token for authentication
+
+security:
+  - BearerAuth: [ ]
