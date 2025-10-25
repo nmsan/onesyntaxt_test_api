@@ -11,6 +11,7 @@ class PostRetrievalService implements PostRetrievalInterface
     public function getPostsByWebsite(int $websiteId): Collection
     {
         return Post::where('website_id', $websiteId)
+            ->where('status', 'published')
             ->with('website.user')
             ->orderBy('created_at', 'desc')
             ->get();

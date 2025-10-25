@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOLID Test API Documentation</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+        .swagger-ui .topbar {
+            background-color: #2c3e50;
+        }
+        .swagger-ui .topbar .download-url-wrapper .select-label {
+            color: #ecf0f1;
+        }
+        .custom-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .custom-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+        .custom-header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .solid-principles {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .solid-principles h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .principle {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .principle h3 {
+            color: #667eea;
+            margin: 0 0 0.5rem 0;
+        }
+        .principle p {
+            margin: 0;
+            color: #6c757d;
+        }
+        .api-info {
+            background: #e3f2fd;
+            padding: 1rem 2rem;
+            border-left: 4px solid #2196f3;
+        }
+        .api-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: #1976d2;
+        }
+        .api-info p {
+            margin: 0;
+            color: #424242;
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-header">
+        <h1>🏗️ SOLID Test API</h1>
+        <p>Laravel API demonstrating SOLID principles with comprehensive documentation</p>
+    </div>
+
+    <div class="solid-principles">
+        <h2>🎯 SOLID Principles Implementation</h2>
+        <div class="principles-grid">
+            <div class="principle">
+                <h3>S - Single Responsibility</h3>
+                <p>Each service handles one specific responsibility. WebsiteCreationService only creates websites, PostRetrievalService only retrieves posts.</p>
+            </div>
+            <div class="principle">
+                <h3>O - Open/Closed</h3>
+                <p>Services can be extended without modification. Add caching by implementing CachedPostRetrievalService without changing existing code.</p>
+            </div>
+            <div class="principle">
+                <h3>L - Liskov Substitution</h3>
+                <p>Interface implementations are substitutable. Any PostRetrievalInterface implementation can replace PostRetrievalService.</p>
+            </div>
+            <div class="principle">
+                <h3>I - Interface Segregation</h3>
+                <p>Focused, cohesive interfaces. Separate interfaces for creation and retrieval operations instead of one fat interface.</p>
+            </div>
+            <div class="principle">
+                <h3>D - Dependency Inversion</h3>
+                <p>Dependencies on abstractions, not concretions. Controllers depend on interfaces, not concrete service classes.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="api-info">
+        <h3>📊 API Statistics</h3>
+        <p><strong>Endpoints:</strong> 6 | <strong>Test Coverage:</strong> 28 tests (325 assertions) | <strong>Architecture:</strong> Service Layer with Interface Segregation</p>
+    </div>
+
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+    <script>
+        window.onload = function() {
+            SwaggerUIBundle({
+                url: './openapi.yaml',
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                tryItOutEnabled: true,
+                requestInterceptor: function(request) {
+                    // Add any custom request headers or modifications here
+                    return request;
+                },
+                responseInterceptor: function(response) {
+                    // Add any custom response handling here
+                    return response;
+                }
+            });
+        };
+    </script>
+</body>
+</html>

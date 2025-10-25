@@ -33,7 +33,10 @@ class PostRetrievalServiceTest extends TestCase
         $user = User::factory()->create();
         $website = Website::factory()->create(['user_id' => $user->id]);
         
-        Post::factory()->count(3)->create(['website_id' => $website->id]);
+        Post::factory()->count(3)->create([
+            'website_id' => $website->id,
+            'status' => 'published'
+        ]);
 
         // Act
         $result = $this->postRetrievalService->getPostsByWebsite($website->id);
@@ -66,7 +69,10 @@ class PostRetrievalServiceTest extends TestCase
             'user_id' => $user->id
         ]);
         
-        $post = Post::factory()->create(['website_id' => $website->id]);
+        $post = Post::factory()->create([
+            'website_id' => $website->id,
+            'status' => 'published'
+        ]);
 
         // Act
         $result = $this->postRetrievalService->getPostsByWebsite($website->id);
@@ -88,19 +94,22 @@ class PostRetrievalServiceTest extends TestCase
         $oldestPost = Post::factory()->create([
             'title' => 'Oldest',
             'website_id' => $website->id,
-            'created_at' => now()->subDays(3)
+            'created_at' => now()->subDays(3),
+            'status' => 'published'
         ]);
         
         $newestPost = Post::factory()->create([
             'title' => 'Newest',
             'website_id' => $website->id,
-            'created_at' => now()->subDays(1)
+            'created_at' => now()->subDays(1),
+            'status' => 'published'
         ]);
         
         $middlePost = Post::factory()->create([
             'title' => 'Middle',
             'website_id' => $website->id,
-            'created_at' => now()->subDays(2)
+            'created_at' => now()->subDays(2),
+            'status' => 'published'
         ]);
 
         // Act
@@ -121,8 +130,14 @@ class PostRetrievalServiceTest extends TestCase
         $website2 = Website::factory()->create(['user_id' => $user->id]);
         
         // Create posts for both websites
-        Post::factory()->count(2)->create(['website_id' => $website1->id]);
-        Post::factory()->count(3)->create(['website_id' => $website2->id]);
+        Post::factory()->count(2)->create([
+            'website_id' => $website1->id,
+            'status' => 'published'
+        ]);
+        Post::factory()->count(3)->create([
+            'website_id' => $website2->id,
+            'status' => 'published'
+        ]);
 
         // Act
         $result1 = $this->postRetrievalService->getPostsByWebsite($website1->id);
@@ -158,7 +173,10 @@ class PostRetrievalServiceTest extends TestCase
         $user = User::factory()->create();
         $website = Website::factory()->create(['user_id' => $user->id]);
         
-        Post::factory()->create(['website_id' => $website->id]);
+        Post::factory()->create([
+            'website_id' => $website->id,
+            'status' => 'published'
+        ]);
 
         // Act - Call the same method multiple times
         $result1 = $this->postRetrievalService->getPostsByWebsite($website->id);
@@ -176,7 +194,10 @@ class PostRetrievalServiceTest extends TestCase
         $website = Website::factory()->create(['user_id' => $user->id]);
         
         // Create 100 posts
-        Post::factory()->count(100)->create(['website_id' => $website->id]);
+        Post::factory()->count(100)->create([
+            'website_id' => $website->id,
+            'status' => 'published'
+        ]);
 
         // Act
         $startTime = microtime(true);

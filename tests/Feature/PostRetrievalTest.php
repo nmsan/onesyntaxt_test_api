@@ -39,7 +39,7 @@ class PostRetrievalTest extends TestCase
         ]);
 
         $responseData = $response->json('data');
-        $this->assertCount(2, $responseData);
+        $this->assertCount(1, $responseData);
 
         $this->assertArrayHasKey('id', $responseData[0]);
         $this->assertArrayHasKey('title', $responseData[0]);
